@@ -18,30 +18,15 @@ end)
 
 Core.LoadJobs = function()
 	local Jobs = {}
-	exports.oxmysql:execute('SELECT * FROM jobs', {}, function(jobs)
-		for _, v in pairs(jobs) do
-			Jobs[v.name] = v
-			Jobs[v.name].grades = {}
+	local file = load(LoadResourceFile('es_extended', '/data/jobs.lua'))()
+	for job, data in pairs(file) do
+        Jobs[job] = {name = job, label = data.name, grades = data.grade}
+		for k, v in pairs(Jobs[job].grades) do
+			Jobs[job].grades[tostring(k)] = v
 		end
-
-		exports.oxmysql:execute('SELECT * FROM job_grades', {}, function(grades)
-			for _, v in pairs(grades) do
-				if Jobs[v.job_name] then
-					Jobs[v.job_name].grades[v.grade] = v
-				else
-					print(('[^3WARNING^7] Ignoring job grades for ^5"%s"^0 due to missing job'):format(v.job_name))
-				end
-			end
-
-			for _, v in pairs(Jobs) do
-				if ESX.Table.SizeOf(v.grades) == 0 then
-					Jobs[v.name] = nil
-					print(('[^3WARNING^7] Ignoring job ^5"%s"^0due to no job grades found'):format(v.name))
-				end
-			end
-			ESX.Jobs = table.clone(Jobs)
-		end)
-	end)
+	end
+	ESX.Jobs = Jobs
+	print('[^2INFO^7] Loaded jobs data')
 end
 
 RegisterServerEvent('esx:clientLog', function(msg)
