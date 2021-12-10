@@ -175,7 +175,7 @@ Core.SavePlayers = function(cb)
 		for i=1, #xPlayers, 1 do
 
 		local xPlayer = ESX.GetPlayerFromId(xPlayers[i])
-		if xPlayer then ESX.SavePlayer(xPlayer) end end
+		if xPlayer then Core.SavePlayer(xPlayer) end end
 		if cb then cb() end
 	end
 end
